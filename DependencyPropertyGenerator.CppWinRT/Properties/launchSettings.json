@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DependencyPropertyGenerator.CppWinRT (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "DependencyPropertyGenerator.CppWinRT (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

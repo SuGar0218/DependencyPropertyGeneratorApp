@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+	x:Class="DependencyPropertyGenerator.WPF.Views.DependencyPropertyInfoView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:common="using:DependencyPropertyGenerator.Common"
+	xmlns:community="using:CommunityToolkit.WinUI.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:DependencyPropertyGenerator.WPF.Views"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="using:DependencyPropertyGenerator.WPF.Models"
+	xmlns:vm="using:DependencyPropertyGenerator.WPF.ViewModels"
+	mc:Ignorable="d">
+	<UserControl.Resources>
+		<local:AccessModifierToDisplayTextConverter x:Key="AccessModifierToDisplayTextConverter" />
+		<local:PropertyChangedCallbackStyleToDisplayTextConverter x:Key="PropertyChangedCallbackStyleToDisplayTextConverter" />
+		<Style BasedOn="{StaticResource DefaultTextBoxStyle}" TargetType="TextBox">
+			<Setter Property="FontFamily" Value="Consolas" />
+		</Style>
+	</UserControl.Resources>
+
+	<Grid RowSpacing="{x:Bind Spacing, Mode=OneWay}">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<StackPanel Grid.Row="0" Spacing="{x:Bind Spacing, Mode=OneWay}">
+			<!--  类型、属性名称、注册方式  -->
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="auto" />
+				</Grid.ColumnDefinitions>
+				<ComboBox
+					Grid.Column="0"
+					ItemsSource="{x:Bind AccessModifiers}"
+					PlaceholderText="{x:Bind ViewModel.AccessModifier, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.AccessModifier, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="common:AccessModifier">
+							<TextBlock Text="{x:Bind Converter={StaticResource AccessModifierToDisplayTextConverter}}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<TextBox
+					Grid.Column="1"
+					PlaceholderText="类型"
+					Text="{x:Bind ViewModel.TypeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<TextBox
+					Grid.Column="2"
+					PlaceholderText="属性名称"
+					Text="{x:Bind ViewModel.PropertyName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<ComboBox
+					Grid.Column="3"
+					ItemsSource="{x:Bind RegisteringActions}"
+					PlaceholderText="{x:Bind ViewModel.RegisteringAction, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.RegisteringAction, Mode=TwoWay}" />
+			</Grid>
+
+			<!--  PropertyMetadata  -->
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				<ComboBox
+					Grid.Column="0"
+					ItemsSource="{x:Bind PropertyMetadataKinds}"
+					PlaceholderText="{x:Bind ViewModel.MetadataKind, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.MetadataKind, Mode=TwoWay}" />
+				<Button
+					Grid.Column="1"
+					Command="{x:Bind ViewModel.GenerateTypeDefaultValueCommand}"
+					Content="生成默认值" />
+				<TextBox
+					Grid.Column="2"
+					PlaceholderText="默认值"
+					Text="{x:Bind ViewModel.DefaultValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<TextBox
+					Grid.Column="3"
+					PlaceholderText="所属类型"
+					Text="{x:Bind ViewModel.OwnerTypeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+
+			<!--  FrameworkPropertyMetadataOptions  -->
+			<ItemsControl
+				Margin="{ThemeResource ButtonPadding}"
+				ItemsSource="{x:Bind ViewModel.MetadataOptionSettings}"
+				Visibility="{x:Bind ToMetadataOptionsVisibility(ViewModel.MetadataKind), Mode=OneWay}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="vm:PropertyMetadataOptionSetting">
+						<CheckBox Content="{x:Bind Option, Mode=OneWay}" IsChecked="{x:Bind IsEnabled, Mode=TwoWay}" />
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<community:UniformGrid
+							Loaded="UniformGrid_Loaded"
+							Orientation="Vertical"
+							SizeChanged="UniformGrid_SizeChanged" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+			</ItemsControl>
+
+			<!--  属性变化回调函数  -->
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<ComboBox
+					Grid.Column="0"
+					ItemsSource="{x:Bind PropertyChangedCallbackStyles}"
+					PlaceholderText="{x:Bind ViewModel.CallbackStyle, Mode=OneWay, Converter={StaticResource PropertyChangedCallbackStyleToDisplayTextConverter}}"
+					SelectedItem="{x:Bind ViewModel.CallbackStyle, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="models:PropertyChangedCallbackStyle">
+							<TextBlock Text="{x:Bind Converter={StaticResource PropertyChangedCallbackStyleToDisplayTextConverter}}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<Button
+					Grid.Column="1"
+					Command="{x:Bind ViewModel.GenerateCallbackNameCommand}"
+					Content="根据属性名称生成回调名称"
+					IsEnabled="{x:Bind ShouldEnabledCallbackSettings(ViewModel.CallbackStyle), Mode=OneWay}" />
+				<TextBox
+					Grid.Column="2"
+					IsEnabled="{x:Bind ShouldEnabledCallbackSettings(ViewModel.CallbackStyle), Mode=OneWay}"
+					Text="{x:Bind ViewModel.CallbackName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Button
+					x:Name="PART_GenerateButton"
+					Grid.Column="0"
+					HorizontalAlignment="Stretch"
+					Command="{x:Bind ViewModel.GenerateCommand}"
+					Content="生成" />
+				<Button
+					x:Name="PART_CopyButton"
+					Grid.Column="1"
+					HorizontalAlignment="Stretch"
+					Click="OnCopyButtonClick"
+					Content="复制"
+					IsEnabled="{x:Bind ShouldEnableCopyButton(ViewModel.GeneratedCode), Mode=OneWay}" />
+				<Button
+					Grid.Column="2"
+					HorizontalAlignment="Stretch"
+					Command="{x:Bind ViewModel.ClearCommand}"
+					Content="清空" />
+			</Grid>
+		</StackPanel>
+
+		<TextBox
+			Grid.Row="1"
+			AcceptsReturn="True"
+			IsReadOnly="True"
+			PlaceholderText="生成的代码将在此处显示"
+			ScrollViewer.HorizontalScrollBarVisibility="Auto"
+			ScrollViewer.VerticalScrollBarVisibility="Auto"
+			Text="{x:Bind ViewModel.GeneratedCode, Mode=OneWay}" />
+
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="GenerationStates">
+				<VisualState x:Name="BeforeGeneration">
+					<VisualState.Setters>
+						<Setter Target="PART_GenerateButton.Style" Value="{ThemeResource AccentButtonStyle}" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="AfterGeneration">
+					<VisualState.Setters>
+						<Setter Target="PART_CopyButton.Style" Value="{ThemeResource AccentButtonStyle}" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+	</Grid>
+</UserControl>

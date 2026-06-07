@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+	x:Class="DependencyPropertyGenerator.CppWinRT.Views.DependencyPropertyInfoView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:common="using:DependencyPropertyGenerator.Common"
+	xmlns:community="using:CommunityToolkit.WinUI.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="using:DependencyPropertyGenerator.CppWinRT.Views"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="using:DependencyPropertyGenerator.CppWinRT.Models"
+	xmlns:vm="using:DependencyPropertyGenerator.CppWinRT.ViewModels"
+	mc:Ignorable="d">
+	<UserControl.Resources>
+		<local:AccessModifierToDisplayTextConverter x:Key="AccessModifierToDisplayTextConverter" />
+		<local:PropertyChangedCallbackStyleToDisplayTextConverter x:Key="PropertyChangedCallbackStyleToDisplayTextConverter" />
+		<Style BasedOn="{StaticResource DefaultTextBoxStyle}" TargetType="TextBox">
+			<Setter Property="FontFamily" Value="Consolas" />
+		</Style>
+	</UserControl.Resources>
+
+	<Grid RowSpacing="{x:Bind Spacing, Mode=OneWay}">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<StackPanel Grid.Row="0" Spacing="{x:Bind Spacing, Mode=OneWay}">
+			<!--  类型、属性名称、注册方式  -->
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="auto" />
+				</Grid.ColumnDefinitions>
+				<ComboBox
+					Grid.Column="0"
+					ItemsSource="{x:Bind AccessModifiers}"
+					PlaceholderText="{x:Bind ViewModel.AccessModifier, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.AccessModifier, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="common:AccessModifier">
+							<TextBlock Text="{x:Bind Converter={StaticResource AccessModifierToDisplayTextConverter}}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<TextBox
+					Grid.Column="1"
+					PlaceholderText="类型"
+					Text="{x:Bind ViewModel.TypeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<TextBox
+					Grid.Column="2"
+					PlaceholderText="属性名称"
+					Text="{x:Bind ViewModel.PropertyName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<ComboBox
+					Grid.Column="3"
+					ItemsSource="{x:Bind RegisteringActions}"
+					PlaceholderText="{x:Bind ViewModel.RegisteringAction, Mode=OneWay}"
+					SelectedItem="{x:Bind ViewModel.RegisteringAction, Mode=TwoWay}" />
+			</Grid>
+
+			<!--  PropertyMetadata  -->
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Button
+					Grid.Column="0"
+					Command="{x:Bind ViewModel.GenerateTypeDefaultValueCommand}"
+					Content="生成默认值" />
+				<TextBox
+					Grid.Column="1"
+					PlaceholderText="默认值"
+					Text="{x:Bind ViewModel.DefaultValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+				<TextBox
+					Grid.Column="2"
+					PlaceholderText="所属类型"
+					Text="{x:Bind ViewModel.OwnerTypeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+
+			<!--  属性变化回调函数  -->
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<ComboBox
+					Grid.Column="0"
+					ItemsSource="{x:Bind PropertyChangedCallbackStyles}"
+					PlaceholderText="{x:Bind ViewModel.CallbackStyle, Mode=OneWay, Converter={StaticResource PropertyChangedCallbackStyleToDisplayTextConverter}}"
+					SelectedItem="{x:Bind ViewModel.CallbackStyle, Mode=TwoWay}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="models:PropertyChangedCallbackStyle">
+							<TextBlock Text="{x:Bind Converter={StaticResource PropertyChangedCallbackStyleToDisplayTextConverter}}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<Button
+					Grid.Column="1"
+					Command="{x:Bind ViewModel.GenerateCallbackNameCommand}"
+					Content="根据属性名称生成回调名称"
+					IsEnabled="{x:Bind ShouldEnabledCallbackSettings(ViewModel.CallbackStyle), Mode=OneWay}" />
+				<TextBox
+					Grid.Column="2"
+					IsEnabled="{x:Bind ShouldEnabledCallbackSettings(ViewModel.CallbackStyle), Mode=OneWay}"
+					Text="{x:Bind ViewModel.CallbackName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			</Grid>
+
+			<Grid ColumnSpacing="{x:Bind Spacing, Mode=OneWay}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<!--<ColumnDefinition Width="1*" />-->
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Button
+					x:Name="PART_GenerateButton"
+					Grid.Column="0"
+					HorizontalAlignment="Stretch"
+					Command="{x:Bind ViewModel.GenerateCommand}"
+					Content="生成"
+					Style="{ThemeResource AccentButtonStyle}" />
+				<!--<Button
+					x:Name="PART_CopyButton"
+					Grid.Column="1"
+					HorizontalAlignment="Stretch"
+					Click="OnCopyButtonClick"
+					Content="复制" />-->
+				<Button
+					Grid.Column="1"
+					HorizontalAlignment="Stretch"
+					Command="{x:Bind ViewModel.ClearCommand}"
+					Content="清空" />
+			</Grid>
+		</StackPanel>
+
+		<StackPanel Grid.Row="1" Spacing="{x:Bind Spacing, Mode=OneWay}">
+			<TextBox
+				AcceptsReturn="True"
+				IsReadOnly="True"
+				PlaceholderText="{x:Bind BuildFileName(ViewModel.OwnerTypeName, 'idl'), Mode=OneWay}"
+				ScrollViewer.HorizontalScrollBarVisibility="Auto"
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				Text="{x:Bind ViewModel.GeneratedIdl, Mode=OneWay}">
+				<TextBox.Header>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="auto" />
+						</Grid.ColumnDefinitions>
+						<TextBlock
+							Grid.Column="0"
+							VerticalAlignment="Center"
+							Style="{ThemeResource SubtitleTextBlockStyle}"
+							Text="{x:Bind BuildFileName(ViewModel.OwnerTypeName, 'idl'), Mode=OneWay}" />
+						<HyperlinkButton
+							Grid.Column="1"
+							Click="OnCopyIdlButtonClick"
+							Content="复制" />
+					</Grid>
+				</TextBox.Header>
+			</TextBox>
+			<TextBox
+				AcceptsReturn="True"
+				IsReadOnly="True"
+				PlaceholderText="{x:Bind BuildFileName(ViewModel.OwnerTypeName, 'h'), Mode=OneWay}"
+				ScrollViewer.HorizontalScrollBarVisibility="Auto"
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				Text="{x:Bind ViewModel.GeneratedH, Mode=OneWay}">
+				<TextBox.Header>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="auto" />
+						</Grid.ColumnDefinitions>
+						<TextBlock
+							Grid.Column="0"
+							VerticalAlignment="Center"
+							Style="{ThemeResource SubtitleTextBlockStyle}"
+							Text="{x:Bind BuildFileName(ViewModel.OwnerTypeName, 'h'), Mode=OneWay}" />
+						<HyperlinkButton
+							Grid.Column="1"
+							Click="OnCopyHButtonClick"
+							Content="复制" />
+					</Grid>
+				</TextBox.Header>
+			</TextBox>
+			<TextBox
+				AcceptsReturn="True"
+				IsReadOnly="True"
+				PlaceholderText="{x:Bind BuildFileName(ViewModel.OwnerTypeName, 'cpp'), Mode=OneWay}"
+				ScrollViewer.HorizontalScrollBarVisibility="Auto"
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				Text="{x:Bind ViewModel.GeneratedCpp, Mode=OneWay}">
+				<TextBox.Header>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="auto" />
+						</Grid.ColumnDefinitions>
+						<TextBlock
+							Grid.Column="0"
+							VerticalAlignment="Center"
+							Style="{ThemeResource SubtitleTextBlockStyle}"
+							Text="{x:Bind BuildFileName(ViewModel.OwnerTypeName, 'cpp'), Mode=OneWay}" />
+						<HyperlinkButton
+							Grid.Column="1"
+							Click="OnCopyCppButtonClick"
+							Content="复制" />
+					</Grid>
+				</TextBox.Header>
+			</TextBox>
+		</StackPanel>
+	</Grid>
+</UserControl>

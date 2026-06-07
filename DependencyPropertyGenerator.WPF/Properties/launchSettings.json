@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DependencyPropertyGenerator.WPF (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "DependencyPropertyGenerator.WPF (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

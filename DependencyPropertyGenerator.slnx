@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="DependencyPropertyGenerator.Common/DependencyPropertyGenerator.Common.csproj" />
+  <Project Path="DependencyPropertyGenerator.CppWinRT/DependencyPropertyGenerator.CppWinRT.csproj" Id="77505db1-4780-40e6-8d57-d6c0ea99d95f">
+    <Platform Project="x64" />
+    <Deploy />
+  </Project>
+  <Project Path="DependencyPropertyGenerator.WPF/DependencyPropertyGenerator.WPF.csproj">
+    <Platform Project="x64" />
+    <Deploy />
+  </Project>
+</Solution>
