@@ -14,6 +14,9 @@ public partial class DependencyPropertyInfoViewModel : ObservableObject
     public partial AccessModifier AccessModifier { get; set; }
 
     [ObservableProperty]
+    public partial string IdlTypeName { get; set; } = string.Empty;
+
+    [ObservableProperty]
     public partial string TypeName { get; set; } = string.Empty;
 
     [ObservableProperty]
@@ -32,7 +35,7 @@ public partial class DependencyPropertyInfoViewModel : ObservableObject
     public partial string CallbackName { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial PropertyChangedCallbackStyle CallbackStyle { get; set; }
+    public partial PropertyChangedCallbackStyle CallbackStyle { get; set; } = PropertyChangedCallbackStyle.Static;
 
     [ObservableProperty]
     public partial string GeneratedIdl { get; private set; } = string.Empty;
@@ -51,16 +54,22 @@ public partial class DependencyPropertyInfoViewModel : ObservableObject
             RegisteringAction.Register => new NormalDependencyPropertyGenerator
             {
                 AccessModifier = AccessModifier,
+                IdlTypeName = IdlTypeName,
                 TypeName = TypeName,
                 PropertyName = PropertyName,
-                OwnerTypeName = OwnerTypeName
+                DefaultValue = DefaultValue,
+                OwnerTypeName = OwnerTypeName,
+                PropertyChangedCallback = CallbackName
             },
-            RegisteringAction.RegisterAttached => new AttachedDependencyProperty
+            RegisteringAction.RegisterAttached => new AttachedDependencyPropertyGenerator
             {
                 AccessModifier = AccessModifier,
+                IdlTypeName = IdlTypeName,
                 TypeName = TypeName,
                 PropertyName = PropertyName,
-                OwnerTypeName = OwnerTypeName
+                DefaultValue = DefaultValue,
+                OwnerTypeName = OwnerTypeName,
+                PropertyChangedCallback = CallbackName
             },
             _ => throw new InvalidEnumArgumentException(),
         };
@@ -83,7 +92,7 @@ public partial class DependencyPropertyInfoViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void GenerateTypeDefaultValue() => DefaultValue = $"default({TypeName})";
+    private void GenerateTypeDefaultValue() => DefaultValue = $"{TypeName}{{}}";
 
     [RelayCommand]
     private void GenerateCallbackName()

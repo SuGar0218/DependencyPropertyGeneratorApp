@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DependencyPropertyGenerator.WPF.Models;
 
-public class FrameworkPropertyMetadataGenerator : IPropertyMetadataGenerator
+public class FrameworkPropertyMetadataGenerator : IWpfPropertyMetadataGenerator
 {
     public string TypeName { get; set; } = string.Empty;
 

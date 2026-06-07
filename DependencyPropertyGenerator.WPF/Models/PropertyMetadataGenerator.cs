@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace DependencyPropertyGenerator.WPF.Models;
 
-public class PropertyMetadataGenerator : IPropertyMetadataGenerator
+public class PropertyMetadataGenerator : IWpfPropertyMetadataGenerator
 {
     public string TypeName { get; set; } = string.Empty;
 

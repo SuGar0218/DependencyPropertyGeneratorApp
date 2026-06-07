@@ -1,9 +1,8 @@
-namespace DependencyPropertyGenerator.WPF.Models;
+﻿namespace DependencyPropertyGenerator.CppWinRT.Models;
 
-public interface IPropertyMetadataGenerator
+public interface ICppWinRTPropertyMetadataGenerator
 {
     string TypeName { get; set; }
-    string PropertyName { get; set; }
     string OwnerTypeName { get; set; }
     string DefaultValue { get; set; }
     string PropertyChangedCallback { get; set; }

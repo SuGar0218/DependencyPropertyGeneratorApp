@@ -26,6 +26,6 @@ public sealed partial class MainWindow : Window
         DependencyPropertyInfoViewModel viewModel = PART_MainView.ViewModel;
         viewModel.TypeName = "winrt::hstring";
         viewModel.PropertyName = "Label";
-        viewModel.OwnerTypeName = "ImageWithLabelControlApp::ImageWithLabelControl";
+        viewModel.OwnerTypeName = "MyControl";
     }
 }

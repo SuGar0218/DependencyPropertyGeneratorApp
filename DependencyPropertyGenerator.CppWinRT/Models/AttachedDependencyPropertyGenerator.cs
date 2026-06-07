@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DependencyPropertyGenerator.CppWinRT.Models;
 
-public class NormalDependencyPropertyGenerator : ICppWinRTDependencyPropertyGenerator
+public class AttachedDependencyPropertyGenerator : ICppWinRTDependencyPropertyGenerator
 {
     public AccessModifier AccessModifier { get; set; }
 
@@ -26,7 +26,9 @@ public class NormalDependencyPropertyGenerator : ICppWinRTDependencyPropertyGene
         return new StringBuilder()
             .Append($"static Microsoft.UI.Xaml.DependencyProperty {PropertyName}Property {{ get; }};")
             .Append(Environment.NewLine)
-            .Append($"{IdlTypeName} {PropertyName};")
+            .Append($"{IdlTypeName} Get{PropertyName}({OwnerTypeName} target);")
+            .Append(Environment.NewLine)
+            .Append($"{IdlTypeName} Set{PropertyName}({OwnerTypeName} target, {TypeName} value);")
             .ToString();
     }
 
@@ -73,19 +75,4 @@ DependencyProperty {OwnerTypeName}::{PropertyName}Property()
     return s_property;
 }}";
     }
-
-    private static string ToLowerCamelCase(string upperCamelCase)
-    {
-        if (string.IsNullOrEmpty(upperCamelCase))
-            return upperCamelCase;
-
-        if (upperCamelCase[0] < 'A' || upperCamelCase[0] > 'Z')
-            return upperCamelCase;
-
-        char[] chars = upperCamelCase.ToCharArray();
-        chars[0] += (char)('a' - 'A');
-        return new string(chars);
-    }
-
-    private static string GetTypeNameWithoutNamespace(string typename) => typename[(typename.LastIndexOf(':') + 1)..];
 }
