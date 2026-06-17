@@ -63,11 +63,11 @@ public class AttachedDependencyPropertyGenerator : IWpfDependencyPropertyGenerat
         };
 
         return
-$@"{AccessModifier.ToCode()} static {TypeName} Get{PropertyName}({OwnerTypeName} target) => ({TypeName})GetValue({PropertyName}Property);
-{AccessModifier.ToCode()} static {TypeName} Set{PropertyName}({OwnerTypeName} target, {TypeName} value) => SetValue({PropertyName}Property, value);
+$@"{AccessModifier.ToCode()} static {TypeName} Get{PropertyName}({OwnerTypeName} target) => ({TypeName})target.GetValue({PropertyName}Property);
+{AccessModifier.ToCode()} static void Set{PropertyName}({OwnerTypeName} target, {TypeName} value) => target.SetValue({PropertyName}Property, value);
 
 {AccessModifier.ToCode()} static readonly DependencyProperty {PropertyName}Property = DependencyProperty.RegisterAttached(
-    nameof({PropertyName}),
+    ""{PropertyName}"",
     typeof({TypeName}),
     typeof({OwnerTypeName}),
     {propertyMetadata}
